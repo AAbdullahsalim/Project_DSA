@@ -7,7 +7,7 @@ using namespace std;
 class Course;
 
 class Student {
-private:
+public:
     string name;
     string roll_num;
     int age;
@@ -95,6 +95,7 @@ void Course::enrollStudent(Student* student) {
     for (int i = 0; i < 5; ++i) {
         if (enrolledStudents[i] == nullptr) {
             enrolledStudents[i] = student;
+            student->enroll(this); // Enroll the student in the course
             cout << "Student enrolled in the course successfully." << endl;
             return;
         }
@@ -189,7 +190,7 @@ public:
         }
     }
 
-private:
+public:
     void addStudent() {
         string name, roll_num, contact;
         int age;
@@ -212,11 +213,10 @@ private:
             if (students[i] == nullptr) {
                 students[i] = new Student(name, roll_num, age, contact);
                 cout << "Student added successfully." << endl;
+                displayStudentInfo(i);
                 break;
             }
         }
-
-        displayAllStudents();
     }
 
     void registerCourse() {
@@ -249,7 +249,7 @@ private:
 
                 if (studentIndex >= 0 && studentIndex < 100 && students[studentIndex] != nullptr) {
                     courses[i] = new Course(courseCode, courseName, courseins, 3, 5);
-                    students[studentIndex]->enroll(courses[i]);
+                    courses[i]->enrollStudent(students[studentIndex]); // Call the enrollStudent function
                     cout << "Course registered successfully." << endl;
                 }
                 else {
@@ -282,6 +282,7 @@ private:
                 for (int j = 0; j < 5; j++) {
                     if (courses[j] != nullptr && courses[j]->code == courseCode) {
                         courses[j]->markAttendance(students[i]);
+                        displayStudentInfo(i);
                         return;
                     }
                 }
@@ -312,6 +313,7 @@ private:
                 for (int j = 0; j < 5; j++) {
                     if (courses[j] != nullptr && courses[j]->code == courseCode) {
                         courses[j]->recordMarks(students[i]);
+                        displayStudentInfo(i);
                         return;
                     }
                 }
@@ -345,6 +347,7 @@ private:
                         // (You may need to add a member function to the Course class for withdrawal)
                         courses[j]->enrolledStudents[i] = nullptr;
                         cout << "Student with roll number " << roll << " withdrawn from the course." << endl;
+                        displayStudentInfo(i);
                         return;
                     }
                 }
@@ -385,6 +388,41 @@ private:
             }
         }
     }
+
+    void displayStudentInfo(int studentIndex) {
+        if (students[studentIndex] != nullptr) {
+            students[studentIndex]->displayInfo();
+
+            cout << "Enrolled Courses:" << endl;
+            for (int i = 0; i < 5; ++i) {
+                if (students[studentIndex]->enrolledCourses[i] != nullptr) {
+                    Course* course = students[studentIndex]->enrolledCourses[i];
+                    cout << "   Course Code: " << course->code << endl;
+                    cout << "   Course Name: " << course->name << endl;
+                    cout << "   Instructor: " << course->instructor << endl;
+                    cout << "   Credits: " << course->credits << endl;
+                    cout << "   Capacity: " << course->capacity << endl;
+
+                    // Display attendance status
+                    cout << "   Attendance: " << (course->attendance[studentIndex] ? "Present" : "NA") << endl;
+
+                    // Display marks
+                    if (course->marks[studentIndex] != -1)
+                    {
+                        cout << "   Marks: " << course->marks[studentIndex] << endl;
+                    }
+                    else {
+                        cout << "   Marks: NA" << endl;
+                    }
+
+                    cout << "---------------------" << endl;
+                }
+            }
+        }
+        else {
+            cout << "Student not found." << endl;
+        }
+    }
 };
 
 int main() {
@@ -395,7 +433,7 @@ int main() {
         system.displayMainMenu();
         cin >> option;
         system.processOption(option);
-    } while (option != 6);
+    } while (option != 7);
 
     return 0;
 }
