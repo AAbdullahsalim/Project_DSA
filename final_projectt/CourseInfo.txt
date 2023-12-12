@@ -1,0 +1,6 @@
+Course Code: 12
+Course Name: english
+Instructor: hiba
+Credits: 3
+Capacity: 5
+---------------------
