@@ -4,7 +4,7 @@
 #include <fstream>  
 using namespace std;
 
-// Forward declaration of Course class
+
 class Course;
 
 class Student {
@@ -16,7 +16,7 @@ public:
     Course* enrolledCourses[5];
 
 public:
-    // Constructor for Student
+    
     Student(const string& n, const string& roll, int a, const string& c)
         : name(n), roll_num(roll), age(a), contact(c) {
         for (int i = 0; i < 5; ++i) {
@@ -24,18 +24,18 @@ public:
         }
     }
 
-    // Getter for roll_num
+   
     string getRollNum() const {
         return roll_num;
     }
 
-    // Function to enroll in a course
+    
     void enroll(Course* course);
 
-    // Function to withdraw from a course
+  
     void withdraw(Course* course);
 
-    // Declaration of displayInfo function
+  
     void displayInfo() const;
 };
 
@@ -47,10 +47,10 @@ public:
     int credits;
     int capacity;
     Student* enrolledStudents[5];
-    bool attendance[5];  // Attendance status for each student
-    int marks[5];       // Marks for each student
+    bool attendance[5];  
+    int marks[5];      
 
-    // Constructor for Course
+    
     Course(const string& c, const string& n, const string& instr, int cred, int cap)
         : code(c), name(n), instructor(instr), credits(cred), capacity(cap) {
         for (int i = 0; i < 5; ++i) {
@@ -60,7 +60,7 @@ public:
         }
     }
 
-    // Other member functions...
+   
 
     void enrollStudent(Student* student);
 
@@ -73,7 +73,7 @@ public:
     void displayEnrolledStudents(int studentIndex) const;
 };
 
-// Continuing from the previous code...
+
 
 void Student::enroll(Course* course) {
     for (int i = 0; i < 5; ++i) {
@@ -114,7 +114,7 @@ void Course::enrollStudent(Student* student) {
     for (int i = 0; i < 5; ++i) {
         if (enrolledStudents[i] == nullptr) {
             enrolledStudents[i] = student;
-            student->enroll(this); // Enroll the student in the course
+            student->enroll(this); 
             cout << "Student enrolled in the course successfully." << endl;
             return;
         }
@@ -125,10 +125,10 @@ void Course::enrollStudent(Student* student) {
 void Course::withdrawStudent(Student* student) {
     for (int i = 0; i < 5; ++i) {
         if (enrolledStudents[i] == student) {
-            // Withdraw the student from the course
+          
             enrolledStudents[i] = nullptr;
-            attendance[i] = false;  // Reset attendance
-            marks[i] = -1;          // Reset marks
+            attendance[i] = false;  
+            marks[i] = -1;         
             cout << "Student withdrawn from the course successfully." << endl;
             return;
         }
@@ -159,7 +159,7 @@ void Course::recordMarks(Student* student) {
     cout << "Student not enrolled in this course." << endl;
 }
 
-// The rest of the code remains unchanged...
+
 
 
 void Course::displayEnrolledStudents(int studentIndex) const {
@@ -167,16 +167,16 @@ void Course::displayEnrolledStudents(int studentIndex) const {
         if (enrolledStudents[i] != nullptr && i == studentIndex) {
             cout << "   " << enrolledStudents[i]->getRollNum() << " - ";
 
-            // Check if the student has withdrawn from the course
+           
             if (enrolledStudents[i]->enrolledCourses[studentIndex] != nullptr &&
                 enrolledStudents[i]->enrolledCourses[studentIndex]->code == code) {
-                cout << "Withdrawn" << endl;
-            }
-            else {
-                // Display attendance status
+                cout << "Enrollled" << endl;
+            
+           
+              
                 cout << "Attendance: " << (attendance[i] ? "Present" : "NA") << ", ";
 
-                // Display marks status
+                
                 cout << "Marks: " << (marks[i] != -1 ? to_string(marks[i]) : "NA") << endl;
             }
         }
@@ -198,11 +198,13 @@ public:
         for (int i = 0; i < 5; i++) {
             courses[i] = nullptr;
         }
+
+         openOutputFile("StudentInfo.txt");
     }
 
     // Open a text file for writing
     void openOutputFile(const string& filename) {
-        outputFile.open(filename);
+        outputFile.open(filename, ios::app); // Open in append mode
         if (!outputFile.is_open()) {
             cerr << "Error opening file: " << filename << endl;
         }
@@ -290,7 +292,7 @@ public:
         cout << "Enter instructor name: ";
         getline(cin, courseins);
 
-        // Check if the course code already exists
+        
         for (int i = 0; i < 5; ++i) {
             if (courses[i] != nullptr && courses[i]->code == courseCode) {
                 cout << "Course with the same code already exists. Please choose a different code." << endl;
@@ -298,7 +300,7 @@ public:
             }
         }
 
-        // Find an empty slot to register the course
+      
         for (int i = 0; i < 5; ++i) {
             if (courses[i] == nullptr) {
                 int studentIndex;
@@ -397,7 +399,7 @@ public:
                     if (courses[j] != nullptr && courses[j]->code == courseCode) {
                         courses[j]->enrolledStudents[i] = nullptr;
                         cout << "Student with roll number " << roll << " withdrawn from the course." << endl;
-                        displayStudentInfo(i);
+                       // displayStudentInfo(i);
                         return;
                     }
                 }
@@ -412,6 +414,7 @@ public:
 
     void displayAllStudents() {
         cout << "List of all students:" << endl;
+
         for (int i = 0; i < 100; ++i) {
             if (students[i] != nullptr) {
                 students[i]->displayInfo();
@@ -421,9 +424,16 @@ public:
     }
     void displayStudentInfo(int studentIndex) {
         if (students[studentIndex] != nullptr) {
-            openOutputFile("StudentInfo.txt");
+            outputFile << "Student Information:" << endl;
+            outputFile << "student name : " << students[studentIndex]->name << endl;
+            outputFile << "student roll number : " << students[studentIndex]->roll_num << endl;
+            outputFile << "student age : " << students[studentIndex]->age << endl;
+            outputFile << "student contact : " << students[studentIndex]->contact << endl;
+
+
 
             students[studentIndex]->displayInfo();
+        
 
             outputFile << "Enrolled Courses:" << endl;
             for (int i = 0; i < 5; ++i) {
@@ -452,8 +462,6 @@ public:
                     outputFile << "---------------------" << endl;
                 }
             }
-
-            closeOutputFile();
         }
         else {
             cout << "Student not found." << endl;
@@ -461,22 +469,26 @@ public:
     }
 
     void displayAllCourses(int studentIndex) {
-        openOutputFile("CourseInfo.txt");
-
         for (int i = 0; i < 5; ++i) {
             if (courses[i] != nullptr) {
-                outputFile << "Course Code: " << courses[i]->code << endl;
-                outputFile << "Course Name: " << courses[i]->name << endl;
-                outputFile << "Instructor: " << courses[i]->instructor << endl;
-                outputFile << "Credits: " << courses[i]->credits << endl;
-                outputFile << "Capacity: " << courses[i]->capacity << endl;
+                cout << "Course Information:" << endl;
+                cout << "Course Code: " << courses[i]->code << endl;
+                cout << "Course Name: " << courses[i]->name << endl;
+                cout << "Instructor: " << courses[i]->instructor << endl;
+                cout<< "Credits: " << courses[i]->credits << endl;
+                cout << "Capacity: " << courses[i]->capacity << endl;
 
                 courses[i]->displayEnrolledStudents(studentIndex);
 
-                outputFile << "---------------------" << endl;
+                cout << "---------------------" << endl;
             }
         }
+    }
 
+    // ... (other member functions remain unchanged)
+
+    ~System() {
+        // Close the file in the destructor
         closeOutputFile();
     }
 };
