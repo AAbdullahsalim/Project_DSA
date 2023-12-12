@@ -1,6 +1,6 @@
 #include <iostream>
 #include <limits>
-#include<string>
+#include <string>
 using namespace std;
 
 // Forward declaration of Course class
@@ -12,21 +12,24 @@ private:
     string roll_num;
     int age;
     string contact;
-    Course* enrolledCourse;
+    Course* enrolledCourses[5];
 
 public:
     // Constructor for Student
-    Student(const string& n, const string& roll, int a, const string& c, Course* course)
-        : name(n), roll_num(roll), age(a), contact(c), enrolledCourse(course) {}
+    Student(const string& n, const string& roll, int a, const string& c)
+        : name(n), roll_num(roll), age(a), contact(c) {
+        for (int i = 0; i < 5; ++i) {
+            enrolledCourses[i] = nullptr;
+        }
+    }
 
     // Getter for roll_num
     string getRollNum() const {
         return roll_num;
     }
 
-    void enroll(Course* course) {
-        enrolledCourse = course;
-    }
+    // Function to enroll in a course
+    void enroll(Course* course);
 
     // Declaration of displayInfo function
     void displayInfo() const;
@@ -39,80 +42,117 @@ public:
     string instructor;
     int credits;
     int capacity;
-    Student* enrolledStudent;
+    Student* enrolledStudents[5];
 
     // Constructor for Course
-    Course(const string& c, const string& n, const string& instr, int cred, int cap, Student* student)
-        : code(c), name(n), instructor(instr), credits(cred), capacity(cap), enrolledStudent(student) {}
+    Course(const string& c, const string& n, const string& instr, int cred, int cap)
+        : code(c), name(n), instructor(instr), credits(cred), capacity(cap) {
+        for (int i = 0; i < 5; ++i) {
+            enrolledStudents[i] = nullptr;
+        }
+    }
 
     // Other member functions...
 
+    void enrollStudent(Student* student);
 
-    void enrollStudent(Student* student) {
-        if (enrolledStudent == nullptr) {
-            enrolledStudent = student;
-            student->enroll(this);
-            cout << "Student enrolled in the course successfully." << endl;
-        }
-        else {
-            cout << "Course already at full capacity." << endl;
-        }
-    }
+    void markAttendance(Student* student);
 
-    void withdrawStudent(Student* student) {
-        if (enrolledStudent == student) {
-            enrolledStudent = nullptr;
-            student->enroll(nullptr);
-            cout << "Student withdrawn from the course successfully." << endl;
-        }
-        else {
-            cout << "Student not enrolled in this course." << endl;
-        }
-    }
+    void recordMarks(Student* student);
 
-    void displayEnrolledStudent() {
-        if (enrolledStudent != nullptr) {
-            enrolledStudent->displayInfo();
-        }
-        else {
-            cout << "No student enrolled in this course." << endl;
-        }
-    }
+    void displayEnrolledStudents() const;
 };
+
+void Student::enroll(Course* course) {
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledCourses[i] == nullptr) {
+            enrolledCourses[i] = course;
+            return;
+        }
+    }
+    cout << "Student cannot enroll in more courses. Maximum limit reached." << endl;
+}
 
 void Student::displayInfo() const {
     cout << "Name: " << name << endl;
     cout << "Roll Number: " << roll_num << endl;
     cout << "Age: " << age << endl;
     cout << "Contact: " << contact << endl;
-    cout << "Enrolled Course: " << (enrolledCourse ? enrolledCourse->name : "None") << endl;
+
+    cout << "Enrolled Courses:" << endl;
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledCourses[i] != nullptr) {
+            cout << "   " << enrolledCourses[i]->name << endl;
+        }
+    }
+}
+
+void Course::enrollStudent(Student* student) {
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledStudents[i] == nullptr) {
+            enrolledStudents[i] = student;
+            cout << "Student enrolled in the course successfully." << endl;
+            return;
+        }
+    }
+    cout << "Course already at full capacity." << endl;
+}
+
+void Course::markAttendance(Student* student) {
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledStudents[i] == student) {
+            // Implement the logic to mark attendance for the found student
+            cout << "Attendance marked for student in course." << endl;
+            return;
+        }
+    }
+    cout << "Student not enrolled in this course." << endl;
+}
+
+void Course::recordMarks(Student* student) {
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledStudents[i] == student) {
+            // Implement the logic to record marks for the found student
+            cout << "Marks recorded for student in course." << endl;
+            return;
+        }
+    }
+    cout << "Student not enrolled in this course." << endl;
+}
+
+void Course::displayEnrolledStudents() const {
+    for (int i = 0; i < 5; ++i) {
+        if (enrolledStudents[i] != nullptr) {
+            cout << "   " << enrolledStudents[i]->getRollNum() << " - ";
+            // Display attendance status (NA if not set yet)
+            // Display marks status (NA if not set yet)
+            cout << "Attendance: NA, Marks: NA" << endl;
+        }
+    }
 }
 
 class System {
 private:
     Student* students[100]; // Assuming a maximum of 100 students
-    Course* courses[5];    // Assuming a maximum of 5 cours
+    Course* courses[5];     // Assuming a maximum of 5 courses
 
 public:
-
-    System()
-    {
-        for (int i = 0; i < 100;i++)
-        {
+    System() {
+        for (int i = 0; i < 100; i++) {
             students[i] = nullptr;
         }
 
-        for (int i = 0; i < 5;i++)
-        {
+        for (int i = 0; i < 5; i++) {
             courses[i] = nullptr;
         }
     }
+
     void displayMainMenu() {
         cout << "Main Menu" << endl;
         cout << "1- Enroll a student" << endl;
         cout << "2- Course Registration" << endl;
-        cout << "3- Attendance" << endl;
-        cout << "4- Marks" << endl;
+        cout << "3- Mark Attendance" << endl;
+        cout << "4- Record Marks" << endl;
         cout << "5- Course Withdraw" << endl;
         cout << "6- Exit" << endl;
         cout << "Press 1 to 6 to select an option: ";
@@ -163,27 +203,19 @@ private:
         getline(cin, contact);
 
         for (int i = 0; i < 100; ++i) {
-
             if (students[i] == nullptr) {
-                students[i] = new Student(name, roll_num, age, contact, nullptr);
+                students[i] = new Student(name, roll_num, age, contact);
                 cout << "Student added successfully." << endl;
                 break;
             }
         }
 
-        for (int i = 0; i < 100; ++i) {
-
-            if (students[i] != nullptr) {
-                cout << "   Displaying student information  :  " << endl;
-                students[i]->displayInfo();
-
-
-            }
-        }
+        displayAllStudents();
     }
+
     void registerCourse() {
         string courseCode, courseName, courseins;
-        static int  index = 0;
+
         cout << "Enter course code: ";
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, courseCode);
@@ -191,11 +223,10 @@ private:
         cout << "Enter course name: ";
         getline(cin, courseName);
 
-        cout << "Enter instructor name : ";
+        cout << "Enter instructor name: ";
         getline(cin, courseins);
 
-        // Check if the course code already exists  
-        //is ko sahi karna
+        // Check if the course code already exists
         for (int i = 0; i < 5; ++i) {
             if (courses[i] != nullptr && courses[i]->code == courseCode) {
                 cout << "Course with the same code already exists. Please choose a different code." << endl;
@@ -204,27 +235,32 @@ private:
         }
 
         // Find an empty slot to register the course
-
         for (int i = 0; i < 5; ++i) {
             if (courses[i] == nullptr) {
-                courses[i] = new Course(courseCode, courseName, courseins, 3, 1, students[index]);
-                students[index]->enroll(courses[i]);
+                int studentIndex;
+                cout << "Enter the index of the student to enroll in the course: ";
+                cin >> studentIndex;
 
-                cout << "Course registered successfully." << endl;
+                if (studentIndex >= 0 && studentIndex < 100 && students[studentIndex] != nullptr) {
+                    courses[i] = new Course(courseCode, courseName, courseins, 3, 5);
+                    students[studentIndex]->enroll(courses[i]);
+                    cout << "Course registered successfully." << endl;
+                }
+                else {
+                    cout << "Invalid student index." << endl;
+                }
 
+                displayAllCourses();
+                return;
             }
         }
-
-        index++;
-
 
         cout << "Cannot register more courses. Maximum limit reached." << endl;
     }
 
-    // Inside the System class definition:
-
     void markAttendance() {
-        string roll;
+        string roll, courseCode;
+
         cout << "Enter student roll number for attendance: ";
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, roll);
@@ -232,8 +268,19 @@ private:
         // Find the student with the given roll number
         for (int i = 0; i < 100; i++) {
             if (students[i] != nullptr && students[i]->getRollNum() == roll) {
-                // Implement the logic to mark attendance for the found student
-                cout << "Attendance marked for student with roll number " << roll << "." << endl;
+                students[i]->displayInfo();
+                cout << "Enter course code for attendance: ";
+                getline(cin, courseCode);
+
+                // Find the course with the given code
+                for (int j = 0; j < 5; j++) {
+                    if (courses[j] != nullptr && courses[j]->code == courseCode) {
+                        courses[j]->markAttendance(students[i]);
+                        return;
+                    }
+                }
+
+                cout << "Course not found with the given code." << endl;
                 return;
             }
         }
@@ -242,7 +289,8 @@ private:
     }
 
     void recordMarks() {
-        string roll;
+        string roll, courseCode;
+
         cout << "Enter student roll number for recording marks: ";
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, roll);
@@ -250,8 +298,19 @@ private:
         // Find the student with the given roll number
         for (int i = 0; i < 100; i++) {
             if (students[i] != nullptr && students[i]->getRollNum() == roll) {
-                // Implement the logic to record marks for the found student
-                cout << "Marks recorded for student with roll number " << roll << "." << endl;
+                students[i]->displayInfo();
+                cout << "Enter course code for recording marks: ";
+                getline(cin, courseCode);
+
+                // Find the course with the given code
+                for (int j = 0; j < 5; j++) {
+                    if (courses[j] != nullptr && courses[j]->code == courseCode) {
+                        courses[j]->recordMarks(students[i]);
+                        return;
+                    }
+                }
+
+                cout << "Course not found with the given code." << endl;
                 return;
             }
         }
@@ -260,7 +319,8 @@ private:
     }
 
     void withdrawFromCourse() {
-        string roll;
+        string roll, courseCode;
+
         cout << "Enter student roll number for course withdrawal: ";
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, roll);
@@ -268,8 +328,22 @@ private:
         // Find the student with the given roll number
         for (int i = 0; i < 100; i++) {
             if (students[i] != nullptr && students[i]->getRollNum() == roll) {
-                // Implement the logic to withdraw the student from a course
-                cout << "Student with roll number " << roll << " withdrawn from the course." << endl;
+                students[i]->displayInfo();
+                cout << "Enter course code for withdrawal: ";
+                getline(cin, courseCode);
+
+                // Find the course with the given code
+                for (int j = 0; j < 5; j++) {
+                    if (courses[j] != nullptr && courses[j]->code == courseCode) {
+                        // Implement the logic to withdraw the student from the course
+                        // (You may need to add a member function to the Course class for withdrawal)
+                        courses[j]->enrolledStudents[i] = nullptr;
+                        cout << "Student with roll number " << roll << " withdrawn from the course." << endl;
+                        return;
+                    }
+                }
+
+                cout << "Course not found with the given code." << endl;
                 return;
             }
         }
@@ -277,8 +351,34 @@ private:
         cout << "Student not found with the given roll number." << endl;
     }
 
-    // Rest of the System class definition...
+    void displayAllStudents() {
+        cout << "List of all students:" << endl;
+        for (int i = 0; i < 100; ++i) {
+            if (students[i] != nullptr) {
+                students[i]->displayInfo();
+                cout << "---------------------" << endl;
+            }
+        }
+    }
 
+    void displayAllCourses() {
+        cout << "List of all courses:" << endl;
+        for (int i = 0; i < 5; ++i) {
+            if (courses[i] != nullptr) {
+                // Display course information
+                cout << "Course Code: " << courses[i]->code << endl;
+                cout << "Course Name: " << courses[i]->name << endl;
+                cout << "Instructor: " << courses[i]->instructor << endl;
+                cout << "Credits: " << courses[i]->credits << endl;
+                cout << "Capacity: " << courses[i]->capacity << endl;
+
+                // Display enrolled students and their attendance/marks status
+                courses[i]->displayEnrolledStudents();
+
+                cout << "---------------------" << endl;
+            }
+        }a
+    }
 };
 
 int main() {
