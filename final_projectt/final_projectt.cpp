@@ -43,12 +43,16 @@ public:
     int credits;
     int capacity;
     Student* enrolledStudents[5];
+    bool attendance[5];  // Attendance status for each student
+    int marks[5];       // Marks for each student
 
     // Constructor for Course
     Course(const string& c, const string& n, const string& instr, int cred, int cap)
         : code(c), name(n), instructor(instr), credits(cred), capacity(cap) {
         for (int i = 0; i < 5; ++i) {
             enrolledStudents[i] = nullptr;
+            attendance[i] = false;
+            marks[i] = -1;
         }
     }
 
@@ -60,7 +64,7 @@ public:
 
     void recordMarks(Student* student);
 
-    void displayEnrolledStudents() const;
+    void displayEnrolledStudents(int studentIndex) const;
 };
 
 void Student::enroll(Course* course) {
@@ -101,7 +105,7 @@ void Course::enrollStudent(Student* student) {
 void Course::markAttendance(Student* student) {
     for (int i = 0; i < 5; ++i) {
         if (enrolledStudents[i] == student) {
-            // Implement the logic to mark attendance for the found student
+            attendance[i] = true;
             cout << "Attendance marked for student in course." << endl;
             return;
         }
@@ -112,7 +116,8 @@ void Course::markAttendance(Student* student) {
 void Course::recordMarks(Student* student) {
     for (int i = 0; i < 5; ++i) {
         if (enrolledStudents[i] == student) {
-            // Implement the logic to record marks for the found student
+            cout << "Enter marks for the student: ";
+            cin >> marks[i];
             cout << "Marks recorded for student in course." << endl;
             return;
         }
@@ -120,13 +125,14 @@ void Course::recordMarks(Student* student) {
     cout << "Student not enrolled in this course." << endl;
 }
 
-void Course::displayEnrolledStudents() const {
+void Course::displayEnrolledStudents(int studentIndex) const {
     for (int i = 0; i < 5; ++i) {
-        if (enrolledStudents[i] != nullptr) {
+        if (enrolledStudents[i] != nullptr && i == studentIndex) {
             cout << "   " << enrolledStudents[i]->getRollNum() << " - ";
-            // Display attendance status (NA if not set yet)
-            // Display marks status (NA if not set yet)
-            cout << "Attendance: NA, Marks: NA" << endl;
+            // Display attendance status
+            cout << "Attendance: " << (attendance[i] ? "Present" : "NA") << ", ";
+            // Display marks status
+            cout << "Marks: " << (marks[i] != -1 ? to_string(marks[i]) : "NA") << endl;
         }
     }
 }
@@ -250,7 +256,7 @@ private:
                     cout << "Invalid student index." << endl;
                 }
 
-                displayAllCourses();
+                displayAllCourses(studentIndex);
                 return;
             }
         }
@@ -361,8 +367,8 @@ private:
         }
     }
 
-    void displayAllCourses() {
-        cout << "List of all courses:" << endl;
+    void displayAllCourses(int studentIndex) {
+        cout << "List of courses for the selected student:" << endl;
         for (int i = 0; i < 5; ++i) {
             if (courses[i] != nullptr) {
                 // Display course information
@@ -373,11 +379,11 @@ private:
                 cout << "Capacity: " << courses[i]->capacity << endl;
 
                 // Display enrolled students and their attendance/marks status
-                courses[i]->displayEnrolledStudents();
+                courses[i]->displayEnrolledStudents(studentIndex);
 
                 cout << "---------------------" << endl;
             }
-        }a
+        }
     }
 };
 
